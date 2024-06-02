@@ -1,8 +1,11 @@
 {
   "name": "grunt-connect-proxy-mock",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Grunt Dev Server 的 Mock 与 Proxy 中间件",
   "main": "tasks/index.js",
+  "repository": {
+    "url": "https://github.com/stuartZhang/grunt-connect-proxy-mock?tab=readme-ov-file#grunt-connect-proxy-mock"
+  },
   "keywords": [
     "grunt",
     "connect",
