@@ -9,12 +9,13 @@
 
 ## 用法概述
 
-向`grunt`任务清单添加`configureProxyMock`任务，在`configureProxies`之后与`connect`之前。
+在`npm i -D grunt-connect-proxy-mock`安装之后，不需要显式地向`Gruntfile`上下文导入该插件。而仅需向`grunt`任务清单插入`configureProxyMock`任务。其位置在`configureProxies`之后与`connect`之前。例如，
 
 ```javascript
     grunt.registerTask('serve', function (target) {
         grunt.task.run([
             'configureProxies:serve',
+            // 这里是插入点
             'configureProxyMock:livereload',
             'connect:livereload'
         ]);
