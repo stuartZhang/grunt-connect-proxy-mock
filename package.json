@@ -1,14 +1,16 @@
 {
   "name": "grunt-connect-proxy-mock",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Grunt Dev Server 的 Mock 与 Proxy 中间件",
-  "main": "index.js",
+  "main": "tasks/index.js",
   "keywords": [
     "grunt",
     "connect",
     "proxy",
     "mock",
-    "dev-server"
+    "dev-server",
+	  "gruntplugin",
+    "http"
   ],
   "author": "stuart_zhang <stuartpage@qq.com>",
   "license": "ISC",

@@ -9,7 +9,19 @@
 
 ## 用法概述
 
-在`grunt-contrib-connect`插件配置结点`connect`下的自定义指令配置子节点内（例如，指令为`livereload`的配置结点），添加三个新配置节点`webSocketMockRouteRules`，`webMockRouteRules`和`webProxyRouteRules`。
+向`grunt`任务清单添加`configureProxyMock`任务，在`configureProxies`之后与`connect`之前。
+
+```javascript
+    grunt.registerTask('serve', function (target) {
+        grunt.task.run([
+            'configureProxies:serve',
+            'configureProxyMock:livereload',
+            'connect:livereload'
+        ]);
+    });
+```
+
+在`grunt-contrib-connect`插件配置结点`connect`下的自定义任务配置子节点内（例如，任务为`livereload`的配置结点），添加三个新配置节点`webSocketMockRouteRules`，`webMockRouteRules`和`webProxyRouteRules`。
 
 ```javascript
 {
@@ -47,7 +59,7 @@
                 //【必填】监听 HTTP 请求的 url 路径。
                 pathname, 
                 //【可选】监听 HTTP 请求的 url 查询字符串参数
-                // - 若指令，必须全部出现在被拦截的请求体内
+                // - 若任务，必须全部出现在被拦截的请求体内
                 query, 
                 //【必填】真响应数据集的篡改函数
                 // - buffer 内容需手工转为字符串，以备篡改使用。
@@ -63,7 +75,7 @@
 
 第一，在宿主工程内，与`grunt-connect-proxy-mock`依赖项平级安装`peer dependency`依赖项`grunt-connect-proxy@^0.2.0`。
 
-第二，在`connect`中相同的指令配置结点下，给`grunt-connect-proxy`插件添加配置结点`proxies`
+第二，在`connect`中相同的任务配置结点下，给`grunt-connect-proxy`插件添加配置结点`proxies`
 
 ```javascript
 {
@@ -141,7 +153,7 @@
                 //【必填】监听 HTTP 请求的 url 路径。
                 pathname, 
                 //【可选】监听 HTTP 请求的 url 查询字符串参数
-                // - 若指令，必须全部出现在被拦截的请求体内
+                // - 若任务，必须全部出现在被拦截的请求体内
                 query, 
                 //【必填】真响应数据集的篡改函数
                 // - buffer 内容需手工转为字符串，以备篡改使用。
