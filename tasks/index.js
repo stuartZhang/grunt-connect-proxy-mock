@@ -105,7 +105,7 @@ module.exports = function(grunt) {
 								} else if (values.length > 1) {
 									req.query[key] = values;
 								}
-							})(searchParams.keys());
+							})(Array.from(searchParams.keys()));
 						}
 					});
 				}))(routeRules);
