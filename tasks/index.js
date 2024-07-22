@@ -74,13 +74,28 @@ module.exports = function(grunt) {
 						if (req.method == method && testPathName()) {
 							buildQuery();
 							res.setHeader('Content-Type', 'application/json');
-							res.write(R.pipe(
-								R.when(
-									R.is(Function),
-									R.apply(R.__, [req, res])
-								),
-								R.unary(R.bind(JSON.stringify, JSON))
-							)(response));
+							var result = response;
+							if (typeof result == 'function') {
+								result = result(req, res);
+								if (typeof result == 'object' && typeof result.then == 'function') {
+									result.then(function(data){
+										res.statusCode = 200;
+										res.write(JSON.stringify(data));
+										res.end();
+									}, function(err){
+										console.error('[webMockRouteRules][' + method + '-' + pathName + ']', err);
+										res.statusCode = 500;
+										res.write(err.stack || err);
+										res.end();
+									});
+									return;
+								}
+							}
+							if (typeof result == 'object') {
+								res.write(JSON.stringify(result));
+							} else {
+								res.write(result);
+							}
 							return res.end();
 						}
 						return next();
