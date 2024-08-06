@@ -72,6 +72,8 @@ module.exports = function(grunt) {
 				R.forEach(R.apply(function(method, pathName, response){
 					middleware.unshift(function(req, res, next){
 						if (req.method == method && testPathName()) {
+							bodyParser.json({limit: '150mb'})(req, res, next);
+							bodyParser.urlencoded({extended: false})(req, res, next);
 							buildQuery();
 							res.setHeader('Content-Type', 'application/json');
 							var result = response;
@@ -128,8 +130,8 @@ module.exports = function(grunt) {
 						}
 					});
 				}))(routeRules);
-				middleware.unshift(bodyParser.urlencoded({extended: false}));
-				middleware.unshift(bodyParser.json({limit: '150mb'}));
+				// middleware.unshift(bodyParser.urlencoded({extended: false}));
+				// middleware.unshift(bodyParser.json({limit: '150mb'}));
 				return middleware;
 			}, [connectOptions.webMockRouteRules]);
 			if (typeof connectOptions.options.middleware == 'function') {
