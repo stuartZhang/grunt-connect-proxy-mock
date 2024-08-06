@@ -69,40 +69,44 @@ module.exports = function(grunt) {
 			] */, connect, options, middleware){
 				var bodyParser = require('body-parser');
 				var pathParser = require('path-parser');
+				var co = require('co');
 				R.forEach(R.apply(function(method, pathName, response){
 					middleware.unshift(function(req, res, next){
 						if (req.method == method && testPathName()) {
-							bodyParser.json({limit: '150mb'})(req, res, next);
-							bodyParser.urlencoded({extended: false})(req, res, next);
-							buildQuery();
-							res.setHeader('Content-Type', 'application/json');
-							var result = response;
-							if (typeof result == 'function') {
-								result = result(req, res);
-								if (typeof result == 'object' && typeof result.then == 'function') {
-									result.then(function(data){
-										res.statusCode = 200;
-										if (typeof data == 'object') {
-											res.write(JSON.stringify(data));
-										} else {
-											res.write(data);
-										}										
-										res.end();
-									}, function(err){
-										console.error('[webMockRouteRules][' + method + '-' + pathName + ']', err);
-										res.statusCode = 500;
-										res.write(err.stack || err);
-										res.end();
-									});
-									return;
+							return co(function *(){
+								var resolver = R.partial(function(resolve, reject, err){
+									if (err) {
+										reject(err);
+									} else {
+										resolve();
+									}
+								});
+								yield new Promise(function(resolve, reject){
+									bodyParser.json({limit: '150mb'})(req, res, resolver([resolve, reject]));
+								});
+								yield new Promise(function(resolve, reject){
+									bodyParser.urlencoded({extended: false})(req, res, resolver([resolve, reject]));
+								});
+								buildQuery();
+								var result = response;
+								if (typeof result == 'function') {
+									result = yield result(req, res);
 								}
-							}
-							if (typeof result == 'object') {
-								res.write(JSON.stringify(result));
-							} else {
-								res.write(result);
-							}
-							return res.end();
+								res.setHeader('Content-Type', 'application/json');
+								res.statusCode = 200;
+								if (typeof result == 'object') {
+									res.write(JSON.stringify(result));
+								} else {
+									res.write(result);
+								}
+							}).catch(function(err){
+								console.error('[webMockRouteRules][' + method + '-' + pathName + ']', err);
+								res.setHeader('Content-Type', 'text/plain');
+								res.statusCode = 500;
+								res.write(err.stack || err);
+							}).finally(function(){
+								res.end();
+							});
 						}
 						return next();
 						function testPathName(){
@@ -130,8 +134,6 @@ module.exports = function(grunt) {
 						}
 					});
 				}))(routeRules);
-				// middleware.unshift(bodyParser.urlencoded({extended: false}));
-				// middleware.unshift(bodyParser.json({limit: '150mb'}));
 				return middleware;
 			}, [connectOptions.webMockRouteRules]);
 			if (typeof connectOptions.options.middleware == 'function') {
@@ -154,11 +156,11 @@ module.exports = function(grunt) {
 				var util = require('util');
 				var proxyUtils = require('grunt-connect-proxy/lib/utils');
 				options.selfHandleResponse = true;
-				if (middleware.length > 0) {
+				if (middleware.length > 0) { // Setup the proxy
 					middleware.splice(middleware.length - 1, 0, proxyUtils.proxyRequest);
 				} else {
 					middleware.push(proxyUtils.proxyRequest);
-				} // Setup the proxy
+				}
 				proxyUtils.proxies().forEach(function(proxy){
 					proxy.server.on('proxyReq', function(proxyReq, req, res, options){
 						proxyReq.removeAllListeners('response');
