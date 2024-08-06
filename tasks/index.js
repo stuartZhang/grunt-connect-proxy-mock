@@ -80,7 +80,11 @@ module.exports = function(grunt) {
 								if (typeof result == 'object' && typeof result.then == 'function') {
 									result.then(function(data){
 										res.statusCode = 200;
-										res.write(JSON.stringify(data));
+										if (typeof data == 'object') {
+											res.write(JSON.stringify(data));
+										} else {
+											res.write(data);
+										}										
 										res.end();
 									}, function(err){
 										console.error('[webMockRouteRules][' + method + '-' + pathName + ']', err);
@@ -148,7 +152,11 @@ module.exports = function(grunt) {
 				var util = require('util');
 				var proxyUtils = require('grunt-connect-proxy/lib/utils');
 				options.selfHandleResponse = true;
-				middleware.push(proxyUtils.proxyRequest); // Setup the proxy
+				if (middleware.length > 0) {
+					middleware.splice(middleware.length - 1, 0, proxyUtils.proxyRequest);
+				} else {
+					middleware.push(proxyUtils.proxyRequest);
+				} // Setup the proxy
 				proxyUtils.proxies().forEach(function(proxy){
 					proxy.server.on('proxyReq', function(proxyReq, req, res, options){
 						proxyReq.removeAllListeners('response');

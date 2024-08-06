@@ -1,6 +1,6 @@
 {
   "name": "grunt-connect-proxy-mock",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Grunt Dev Server 的 Mock 与 Proxy 中间件",
   "main": "tasks/index.js",
   "repository": {
